@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ответы ИК и ПК</title>
+  <meta name="description" content="Быстрый поиск по вопросам и ответам: новейшая история Узбекистана, клинические основы специальной педагогики, общая психология.">
+  <meta name="theme-color" content="#111317">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">К содержимому</a>
+
+  <header class="top">
+    <div class="top__row">
+      <a class="home" href="#/" aria-label="На главную">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM13 4h5.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H13z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </a>
+      <div class="search" role="search">
+        <svg class="search__icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input id="q" class="search__input" type="search" autocomplete="off" autocorrect="off" spellcheck="false"
+               enterkeyhint="search" placeholder="Вопрос или номер, например 14"
+               role="combobox" aria-expanded="false" aria-controls="results" aria-autocomplete="list"
+               aria-label="Поиск по вопросам трех файлов">
+        <button class="search__clear" id="clear" type="button" aria-label="Очистить поиск" hidden>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="results" id="results-panel" hidden>
+      <p class="results__summary" id="summary" aria-live="polite"></p>
+      <div id="results" role="listbox" aria-label="Найденные вопросы"></div>
+    </div>
+  </header>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <main id="main" class="page" tabindex="-1"></main>
+
+  <button class="to-top" id="toTop" type="button" aria-label="Наверх" hidden>
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <noscript><p class="page">Для поиска и навигации нужен включенный JavaScript.</p></noscript>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
