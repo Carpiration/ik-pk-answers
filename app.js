@@ -549,6 +549,15 @@
 
   route();
 
+  /* ---------- Ссылка на APK ---------- */
+  // Только в браузере Android: внутри APK и установленного с главного экрана приложения она не нужна.
+  const getApp = document.getElementById('getApp');
+  if (getApp && /Android/i.test(navigator.userAgent)
+      && !window.AnswersBridge
+      && !matchMedia('(display-mode: standalone)').matches) {
+    getApp.hidden = false;
+  }
+
   /* ---------- Работа без сети ---------- */
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

@@ -1,5 +1,5 @@
 // Кэш для работы без сети. При изменении файлов увеличьте версию.
-const CACHE = 'answers-v3';
+const CACHE = 'answers-v4';
 const ASSETS = ['./', 'index.html', 'styles.css', 'app.js', 'data.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 
