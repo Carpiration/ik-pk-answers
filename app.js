@@ -78,6 +78,63 @@
   // «внимание» → «вниман» найдет «внимания», «о внимании».
   const stem = (t) => (/^\d+$/.test(t) || t.length <= 3 ? t : t.length === 4 ? t.slice(0, 3) : t.slice(0, Math.max(4, t.length - 2)));
 
+  /* ---------- Похожие слова (опечатки) ---------- */
+  // Словарь слов из вопросов и ответов, разложенный по длине: перебирать нужно только три длины.
+  let vocab = null;
+  function buildVocab() {
+    const seen = new Set();
+    vocab = new Map();
+    for (const it of ALL) {
+      for (const w of (it.nq + it.na).split(' ')) {
+        if (w.length < 4 || seen.has(w)) continue;
+        seen.add(w);
+        if (!vocab.has(w.length)) vocab.set(w.length, []);
+        vocab.get(w.length).push(w);
+      }
+    }
+  }
+
+  // Расстояние редактирования не больше max (замена, вставка, пропуск буквы).
+  function withinEdits(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return false;
+    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      const row = [i];
+      let best = i;
+      for (let j = 1; j <= b.length; j++) {
+        row[j] = a[i - 1] === b[j - 1]
+          ? prev[j - 1]
+          : 1 + Math.min(prev[j - 1], prev[j], row[j - 1]);
+        if (row[j] < best) best = row[j];
+      }
+      if (best > max) return false; // вся строка уже хуже предела
+      prev = row;
+    }
+    return prev[b.length] <= max;
+  }
+
+  const NEAR_MAX = 6;
+  function nearWords(t) {
+    if (t.length < 4 || /\d/.test(t)) return [];
+    if (!vocab) buildVocab();
+    // Длинному слову прощаем две буквы, но тогда начало должно совпадать — иначе набежит мусор.
+    const max = t.length >= 7 ? 2 : 1;
+    const out = [];
+    for (let d = 0; d <= max; d++) {
+      for (const len of d === 0 ? [t.length] : [t.length - d, t.length + d]) {
+        for (const w of vocab.get(len) || []) {
+          if (w === t || out.includes(w)) continue;
+          if (max === 2 && w.slice(0, 2) !== t.slice(0, 2)) continue;
+          if (withinEdits(t, w, max)) {
+            out.push(w);
+            if (out.length >= NEAR_MAX) return out;
+          }
+        }
+      }
+    }
+    return out;
+  }
+
   function makeRe(tokens) {
     if (!tokens || !tokens.length) return null;
     const ye = (x) => escapeRe(x).replace(/е/g, '[её]');
@@ -118,6 +175,14 @@
       if (file === 'psy') return { type: 'ticket', t: +m[2], n: m[3] ? +m[3] : undefined };
       return { type: 'num', n: +m[2], file };
     }
+    // «пк память», «14 внимание», «билет 14 речь» — сузить поиск до файла и/или номера.
+    if ((m = t.match(/^(?:(ик|пк|пси[а-я]*)\s+)?(?:(?:билет\s*)?№?\s*(\d{1,3})\s+)?(.*\p{L}.*)$/u))) {
+      const tokens = norm(m[3]).split(' ').filter(Boolean);
+      if (tokens.length && (m[1] || m[2])) {
+        const file = m[1] ? (m[1] === 'ик' ? 'ik' : m[1] === 'пк' ? 'pk' : 'psy') : null;
+        return { type: 'text', tokens, phrase: tokens.join(' '), scope: { file, n: m[2] ? +m[2] : null } };
+      }
+    }
     const tokens = norm(t).split(' ').filter(Boolean);
     return tokens.length ? { type: 'text', tokens, phrase: tokens.join(' ') } : null;
   }
@@ -142,31 +207,58 @@
     return groups;
   }
 
+  // Для каждого слова запроса — что считать совпадением. Первый вариант сам запрос,
+  // остальные (если включены) — похожие слова из словаря, они дают меньше баллов.
+  function variantsFor(tokens, fuzzy) {
+    return tokens.map((t) => {
+      const list = [{ tok: t, st: stem(t), w: 0 }];
+      if (fuzzy) for (const alt of nearWords(t)) list.push({ tok: alt, st: stem(alt), w: 3 });
+      return list;
+    });
+  }
+
   // -1 — не подходит; иначе чем больше, тем выше в списке
   function score(text, q) {
     let sc = 0;
-    for (let k = 0; k < q.tokens.length; k++) {
-      const tok = q.tokens[k];
-      if (text.includes(' ' + tok)) sc += 10; // точное слово или его начало
-      else if (text.includes(' ' + q.stems[k])) sc += 6; // другая форма слова
-      else if (tok.length >= 3 && text.includes(tok)) sc += 3; // внутри слова
-      else return -1;
+    for (const variants of q.variants) {
+      let best = -1;
+      for (const v of variants) {
+        let s = -1;
+        if (text.includes(' ' + v.tok)) s = 10 - v.w; // точное слово или его начало
+        else if (text.includes(' ' + v.st)) s = 6 - v.w; // другая форма слова
+        else if (v.tok.length >= 3 && text.includes(v.tok)) s = 3 - v.w; // внутри слова
+        if (s > best) best = s;
+      }
+      if (best < 0) return -1;
+      sc += best;
     }
-    if (q.tokens.length > 1 && text.includes(' ' + q.phrase)) sc += 40;
+    if (q.variants.length > 1 && text.includes(' ' + q.phrase)) sc += 40;
     if (text.startsWith(' ' + q.phrase)) sc += 20;
     return sc;
   }
 
-  function searchText(q) {
-    const tq = { tokens: q.tokens, stems: q.tokens.map(stem), phrase: q.phrase };
+  // scope — {file, n} из запроса вида «пк 14 память»: сузить поиск до файла и/или номера.
+  function inScope(it, scope) {
+    if (scope.file && it.file !== scope.file) return false;
+    if (scope.n != null) {
+      const f = byId[it.file];
+      if ((f.tickets ? it.t : it.n) !== scope.n) return false;
+    }
+    return true;
+  }
+
+  function searchText(tokens, opts = {}) {
+    const q = { variants: variantsFor(tokens, opts.fuzzy), phrase: tokens.join(' ') };
+    const scope = opts.scope;
     const inQ = [];
     const inA = [];
     for (const it of ALL) {
       if (!it.primary) continue; // повтор показываем один раз, номера — в подписи
-      const s = score(it.nq, tq);
+      if (scope && !inScope(it, scope)) continue;
+      const s = score(it.nq, q);
       if (s >= 0) inQ.push({ it, s: s - it.nq.length / 400 });
-      else if (tq.phrase.length >= 3) {
-        const sa = score(it.na, tq);
+      else if (q.phrase.length >= 3) {
+        const sa = score(it.na, q);
         if (sa >= 0) inA.push({ it, s: sa });
       }
     }
@@ -174,6 +266,14 @@
     inQ.sort(order);
     inA.sort(order);
     return { inQ: inQ.map((x) => x.it), inA: inA.map((x) => x.it) };
+  }
+
+  // Слова, которые реально что-то нашли, — чтобы подсветить и исправленные тоже.
+  function hitWords(tokens, fuzzy) {
+    if (!fuzzy) return tokens;
+    const out = [...tokens];
+    for (const t of tokens) out.push(...nearWords(t));
+    return out;
   }
 
   let options = [];
@@ -224,8 +324,22 @@
 
     if (q.type === 'text') {
       lastTokens = q.tokens;
-      const { inQ, inA } = searchText(q);
-      const re = makeRe(lastTokens);
+      // 1) как набрано; 2) если сужали номером или файлом и пусто — по всем файлам;
+      // 3) если все равно пусто — с поправкой на опечатку.
+      let note = '';
+      let fuzzy = false;
+      let r = searchText(q.tokens, { scope: q.scope });
+      if (!r.inQ.length && !r.inA.length && q.scope) {
+        const wide = searchText(q.tokens);
+        if (wide.inQ.length || wide.inA.length) { r = wide; note = 'В этом номере ничего нет, показан поиск по всем файлам. '; }
+      }
+      if (!r.inQ.length && !r.inA.length) {
+        const soft = searchText(q.tokens, { scope: q.scope, fuzzy: true });
+        if (soft.inQ.length || soft.inA.length) { r = soft; fuzzy = true; note = 'Точных совпадений нет, показаны похожие слова. '; }
+      }
+      const { inQ, inA } = r;
+      const re = makeRe(hitWords(lastTokens, fuzzy));
+      if (fuzzy) lastTokens = hitWords(lastTokens, true);
       if (inQ.length) list.append(group('В вопросах', inQ.slice(0, 80).map((it) => option(it, re, false))));
       if (inA.length) list.append(group('Только в тексте ответа', inA.slice(0, 40).map((it) => option(it, re, true))));
       if (!inQ.length && !inA.length) {
@@ -234,9 +348,9 @@
           h('p', null, `Ничего не найдено по запросу «${raw.trim()}».`),
           h('p', null, 'Попробуйте одно ключевое слово или номер вопроса.')));
       } else {
-        summary.textContent = inQ.length
+        summary.textContent = note + (inQ.length
           ? `Найдено в вопросах: ${inQ.length}${inA.length ? `, только в ответах: ${inA.length}` : ''}`
-          : `В вопросах не найдено, в ответах: ${inA.length}`;
+          : `В вопросах не найдено, в ответах: ${inA.length}`);
       }
     } else {
       lastTokens = null;
@@ -392,7 +506,9 @@
           h('li', null, h('kbd', null, 'синапс'), ' по словам из вопроса — сразу во всех файлах'),
           h('li', null, h('kbd', null, '14'), ' 14-й вопрос в ИК и ПК и билет 14 по психологии'),
           h('li', null, h('kbd', null, '14.2'), ' билет 14, вопрос 2'),
-          h('li', null, h('kbd', null, 'ик 14'), h('kbd', null, 'пк 14'), ' номер в одном файле')))
+          h('li', null, h('kbd', null, 'ик 14'), h('kbd', null, 'пк 14'), ' номер в одном файле'),
+          h('li', null, h('kbd', null, 'пк память'), h('kbd', null, '14 внимание'), ' слово внутри файла или номера'),
+          h('li', null, 'опечатка не страшна: если точных совпадений нет, покажутся похожие слова')))
     );
     window.scrollTo(0, 0);
   }
