@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ответы</title>
+<style>
+  body{margin:0;min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;padding:24px;box-sizing:border-box;
+    background:#111317;color:#949cab;font:15px/1.45 system-ui,Roboto,sans-serif;text-align:center}
+  button{min-height:44px;padding:0 20px;border:0;border-radius:8px;background:#8fb0ff;color:#111317;font:inherit;font-weight:650}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<p id="msg">Загрузка…</p>
+<button type="button" id="retry" hidden>Повторить</button>
+<script>
+'use strict';
+// Страница из APK (адрес file://): переходит на сайт; без сети показывает кнопку «Повторить».
+const bridge = window.AnswersBridge;
+const url = bridge ? bridge.appUrl() : '';
+const go = () => location.replace(url);
+if (/offline/.test(location.search)) {
+  document.getElementById('msg').textContent = 'Нет связи. При первом запуске нужен интернет, дальше ответы открываются и без него.';
+  document.getElementById('retry').hidden = false;
+  document.getElementById('retry').onclick = go;
+} else go();
+</script>
+</body>
+</html>

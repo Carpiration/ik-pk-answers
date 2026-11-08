@@ -442,6 +442,18 @@
     updateToTop();
   }
 
+  // Кнопка «Назад» в Android-приложении: сначала закрывает поиск, затем возвращает к предыдущему экрану.
+  // true — нажатие обработано страницей; false — приложение сворачивается.
+  window.appBack = () => {
+    if (!panel.hidden) { closeResults(); input.blur(); return true; }
+    if (currentFile) {
+      if (history.length > 1) history.back();
+      else location.hash = '#/';
+      return true;
+    }
+    return false;
+  };
+
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.addEventListener('hashchange', route);
 
