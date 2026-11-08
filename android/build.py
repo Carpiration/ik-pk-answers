@@ -15,8 +15,8 @@ from pathlib import Path
 
 APP_ID = "app.answers.ikpk"
 APP_URL = "https://carpiration.github.io/ik-pk-answers/"  # сайт, который открывает приложение
-VERSION_NAME = "1.0"
-VERSION_CODE = 1          # увеличивайте при каждом новом APK, иначе он не встанет поверх старого
+VERSION_NAME = "1.1"
+VERSION_CODE = 2          # увеличивайте при каждом новом APK, иначе он не встанет поверх старого
 MIN_SDK = 24              # Android 7.0
 TARGET_SDK = 35
 
