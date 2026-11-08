@@ -195,14 +195,6 @@ main{padding-top:2px;outline:none;animation:fade var(--t)}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}}
 @keyframes flash{0%,40%{background:var(--accent-soft);border-color:var(--accent)}}
 
-/* Ссылка на APK внизу страницы. Показывается только в браузере Android — см. app.js. */
-.get-app{display:grid;justify-items:center;gap:3px;padding:24px var(--gutter) calc(26px + env(safe-area-inset-bottom));
-  color:var(--faint);font-size:12.5px;line-height:1.5;text-align:center}
-.get-app[hidden]{display:none}
-.get-app a{color:var(--muted);font-weight:550;text-decoration:underline;text-underline-offset:3px;
-  text-decoration-color:var(--border-hover);transition:color var(--t-fast)}
-.get-app a:hover{color:var(--text-2);text-decoration-color:var(--border-hover)}
-
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
