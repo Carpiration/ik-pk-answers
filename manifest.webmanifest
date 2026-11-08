@@ -3,7 +3,6 @@
   "short_name": "Ответы",
   "description": "Быстрый поиск по вопросам и ответам: ИК, ПК, психология",
   "lang": "ru",
-  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
