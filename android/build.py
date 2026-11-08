@@ -142,7 +142,12 @@ def main():
     run(bt / f"apksigner{bat}", "verify", "--verbose", signed, env=env)
     apk = ROOT / f"Otvety-{VERSION_NAME}.apk"
     shutil.copy(signed, apk)
+    # Копия с постоянным именем — ее забирает GitHub Pages, ссылка на скачивание не меняется.
+    site = ROOT / "download" / "Otvety.apk"
+    site.parent.mkdir(exist_ok=True)
+    shutil.copy(signed, site)
     print(f"\nГотово: {apk}  ({apk.stat().st_size // 1024} КБ)")
+    print(f"Для сайта: {site} — закоммитьте и запушьте, чтобы обновить ссылку на скачивание.")
 
 
 if __name__ == "__main__":

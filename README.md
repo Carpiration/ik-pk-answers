@@ -10,7 +10,7 @@
 
 Темная тема, рассчитан в первую очередь на телефон. Работает без сервера и без сети после первого открытия.
 
-**Сайт:** https://carpiration.github.io/ik-pk-answers/ · **Android:** APK в разделе Releases.
+**Сайт:** https://carpiration.github.io/ik-pk-answers/ · **Android:** [скачать APK](https://carpiration.github.io/ik-pk-answers/download/Otvety.apk) (копия — в разделе Releases).
 На ПК сайт устанавливается из Chrome как приложение в отдельном окне — см. [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ## Поиск

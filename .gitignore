@@ -4,6 +4,8 @@ android/signing/
 android/build/
 *.apk
 *.idsig
+# Исключение: APK для сайта — он публикуется через GitHub Pages.
+!download/Otvety.apk
 # Локальные файлы
 __pycache__/
 *.pyc
