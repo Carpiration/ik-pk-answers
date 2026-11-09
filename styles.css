@@ -13,8 +13,8 @@
   --accent-soft:color-mix(in srgb,var(--accent) 13%,transparent); --accent-line:color-mix(in srgb,var(--accent) 45%,transparent);
   /* свечение фона из угла — общий признак с «Задачами» */
   --bg-x:92%; --bg-y:0%; --bg-s:20%; --bg-rn:80;
-  /* метки файлов: oklch(.775 .105 95 / 180 / 265) */
-  --c-ik:#cbb564; --c-pk:#5eccb8; --c-psy:#95b5fa;
+  /* метки файлов: oklch(.775 .105 95 / 180 / 265 / 350) */
+  --c-ik:#cbb564; --c-pk:#5eccb8; --c-psy:#95b5fa; --c-nerv:#e99abf;
   /* состояние «выучено»: oklch(.775 .105 145), та же светлота, что у меток */
   --c-ok:#6ccc90;
   /* форма */
@@ -136,6 +136,7 @@ mark{background:var(--accent-soft);color:var(--text);border-radius:3px;box-shado
 [data-file="ik"]{--file:var(--c-ik)}
 [data-file="pk"]{--file:var(--c-pk)}
 [data-file="psy"]{--file:var(--c-psy)}
+[data-file="nerv"]{--file:var(--c-nerv)}
 
 /* разделитель — как «Готовые» в списке задач */
 .sep{display:flex;align-items:center;gap:10px;margin:18px 10px 4px;color:var(--faint);font-size:var(--fz-1);font-weight:650;letter-spacing:.06em;text-transform:uppercase;scroll-margin-top:calc(var(--top-h) + 8px)}

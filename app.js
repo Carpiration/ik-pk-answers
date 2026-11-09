@@ -179,6 +179,14 @@
   }
 
   /* ---------- Поиск ---------- */
+  // «ик», «пк», «пси», «нс» перед запросом сужают поиск до одного файла.
+  function fileByPrefix(p) {
+    if (p === 'ик') return 'ik';
+    if (p === 'пк') return 'pk';
+    if (p === 'нс') return 'nerv';
+    return 'psy';
+  }
+
   function parseQuery(raw) {
     const t = raw.trim().toLowerCase().replace(/ё/g, 'е');
     if (!t) return null;
@@ -186,16 +194,16 @@
     if ((m = t.match(/^№?\s*(\d{1,3})$/))) return { type: 'num', n: +m[1] };
     if ((m = t.match(/^(?:билет\s*)?(\d{1,3})\s*[.\-/,:\s]\s*(\d{1,2})$/))) return { type: 'ticket', t: +m[1], n: +m[2] };
     if ((m = t.match(/^билет\s*№?\s*(\d{1,3})$/))) return { type: 'ticket', t: +m[1] };
-    if ((m = t.match(/^(ик|пк|пси[а-я]*)\s*№?\s*(\d{1,3})(?:\s*[.\-/,:\s]\s*(\d{1,2}))?$/))) {
-      const file = m[1] === 'ик' ? 'ik' : m[1] === 'пк' ? 'pk' : 'psy';
+    if ((m = t.match(/^(ик|пк|пси[а-я]*|нс)\s*№?\s*(\d{1,3})(?:\s*[.\-/,:\s]\s*(\d{1,2}))?$/))) {
+      const file = fileByPrefix(m[1]);
       if (file === 'psy') return { type: 'ticket', t: +m[2], n: m[3] ? +m[3] : undefined };
       return { type: 'num', n: +m[2], file };
     }
     // «пк память», «14 внимание», «билет 14 речь» — сузить поиск до файла и/или номера.
-    if ((m = t.match(/^(?:(ик|пк|пси[а-я]*)\s+)?(?:(?:билет\s*)?№?\s*(\d{1,3})\s+)?(.*\p{L}.*)$/u))) {
+    if ((m = t.match(/^(?:(ик|пк|пси[а-я]*|нс)\s+)?(?:(?:билет\s*)?№?\s*(\d{1,3})\s+)?(.*\p{L}.*)$/u))) {
       const tokens = norm(m[3]).split(' ').filter(Boolean);
       if (tokens.length && (m[1] || m[2])) {
-        const file = m[1] ? (m[1] === 'ик' ? 'ik' : m[1] === 'пк' ? 'pk' : 'psy') : null;
+        const file = m[1] ? fileByPrefix(m[1]) : null;
         return { type: 'text', tokens, phrase: tokens.join(' '), scope: { file, n: m[2] ? +m[2] : null } };
       }
     }
@@ -547,9 +555,9 @@
         h('h2', { class: 'sub-h' }, 'Как искать'),
         h('ul', null,
           h('li', null, h('kbd', null, 'синапс'), ' по словам из вопроса — сразу во всех файлах'),
-          h('li', null, h('kbd', null, '14'), ' 14-й вопрос в ИК и ПК и билет 14 по психологии'),
+          h('li', null, h('kbd', null, '14'), ' 14-й вопрос в ИК, ПК и НС и билет 14 по психологии'),
           h('li', null, h('kbd', null, '14.2'), ' билет 14, вопрос 2'),
-          h('li', null, h('kbd', null, 'ик 14'), h('kbd', null, 'пк 14'), ' номер в одном файле'),
+          h('li', null, h('kbd', null, 'ик 14'), h('kbd', null, 'нс 14'), ' номер в одном файле'),
           h('li', null, h('kbd', null, 'пк память'), h('kbd', null, '14 внимание'), ' слово внутри файла или номера'),
           h('li', null, 'опечатка не страшна: если точных совпадений нет, покажутся похожие слова')))
     );

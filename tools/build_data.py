@@ -1,4 +1,4 @@
-"""Собирает data.js из трех .docx в папке source/.
+"""Собирает data.js из .docx в папке source/ (список файлов — в FILES ниже).
 
 Запуск из корня проекта:  python tools/build_data.py
 Нужен только стандартный Python 3.8+.
@@ -24,6 +24,7 @@ FILES = [
     {"id": "ik", "short": "ИК", "name": "ИК вопросы", "src": "source/ik.docx"},
     {"id": "pk", "short": "ПК", "name": "ПК вопросы", "src": "source/pk.docx"},
     {"id": "psy", "short": "Психология", "name": "ПК Психология", "src": "source/psy.docx"},
+    {"id": "nerv", "short": "НС", "name": "Нервная система", "src": "source/nerv.docx"},
 ]
 
 
