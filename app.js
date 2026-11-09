@@ -443,12 +443,12 @@
   });
 
   /* ---------- Размер текста ---------- */
-  const SIZES = [14, 15.5, 17, 18.5, 20, 22];
+  const SIZES = [14, 16, 18, 20, 22, 24]; // 16 — основной размер чтения, за 100 % берем его
   let sizeIdx = SIZES.indexOf(+storage.get('fs2'));
   if (sizeIdx < 0) sizeIdx = 1;
   function applySize() {
     document.documentElement.style.setProperty('--fs', SIZES[sizeIdx] + 'px');
-    $('sizeVal').textContent = Math.round((SIZES[sizeIdx] / 15.5) * 100) + '%';
+    $('sizeVal').textContent = Math.round((SIZES[sizeIdx] / 16) * 100) + '%';
     $('sizeDown').disabled = sizeIdx === 0;
     $('sizeUp').disabled = sizeIdx === SIZES.length - 1;
   }

@@ -1,21 +1,32 @@
-/* Ответы ИК и ПК: стили в духе «Задач» (treker). Темная тема, токены — в :root. */
+/* Ответы ИК и ПК. Темная тема, одна система токенов — ниже в :root, в правилах только они.
+   Цвета посчитаны в OKLCH (светлота/насыщенность/тон) и записаны в hex: так их проверяет скрипт контраста.
+   Нейтрали уведены в теплый тон 65 вслед за оранжевым акцентом, метки файлов — одна светлота и насыщенность,
+   разный тон, поэтому читаются как один набор, а не как три случайных цвета. */
 :root{
-  --bg:#0d0e10; --surface:#15171a; --surface-2:#1b1e22; --surface-3:#23272c; --surface-4:#2c3137;
-  --border:#24272c; --border-strong:#353a41; --border-hover:#474d56;
-  --text:#ebecee; --text-2:#d3d6da; --muted:#a3a8b0; --faint:#868c95;
-  --accent:#ff8a3d; --on-accent:#1b0e04;
+  /* поверхности: oklch(.158 → .350 / .004 → .008 / 65) */
+  --bg:#0e0c0b; --surface:#191715; --surface-2:#221f1d; --surface-3:#2f2c29; --surface-4:#3e3a36;
+  /* линии: --border декоративная, --border-strong несет контур поля и кнопки (≥3:1 к поверхности) */
+  --border:#312e2c; --border-strong:#7a7570; --border-hover:#928c87;
+  --text:#efedec; --text-2:#d8d5d3; --muted:#aca8a5; --faint:#8d8884;
+  /* акцент — единственный насыщенный цвет, только для действий и выделения */
+  --accent:#f99549; --on-accent:#261102;
   --accent-soft:color-mix(in srgb,var(--accent) 13%,transparent); --accent-line:color-mix(in srgb,var(--accent) 45%,transparent);
-  /* свечение фона из угла, как в «Задачах» */
-  --bg-x:92%; --bg-y:0%; --bg-s:34%; --bg-rn:80;
-  /* метки файлов */
-  --c-ik:#ffc233; --c-pk:#19c9a3; --c-psy:#6ea8ff;
-  --r-lg:14px; --r:12px; --r-sm:8px;
-  --shadow-pop:0 12px 32px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.35);
+  /* свечение фона из угла — общий признак с «Задачами» */
+  --bg-x:92%; --bg-y:0%; --bg-s:20%; --bg-rn:80;
+  /* метки файлов: oklch(.775 .105 95 / 180 / 265) */
+  --c-ik:#cbb564; --c-pk:#5eccb8; --c-psy:#95b5fa;
+  /* форма */
+  --r:12px; --r-sm:8px; --r-pill:999px;
+  --shadow-1:0 1px 2px rgba(0,0,0,.45);
+  --shadow-2:0 12px 32px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.35);
+  /* движение */
   --t-fast:120ms; --t:200ms; --t-slow:280ms; --ease:cubic-bezier(.2,.8,.2,1);
   --t-peek:420ms; --t-peek-out:340ms; --ease-peek:cubic-bezier(.32,.72,0,1);
+  /* текст: пять ступеней интерфейса плюс отдельно размер ответов */
   --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --fz-1:11.5px; --fz-2:12.5px; --fz-3:13.5px; --fz-4:15px; --fz-5:17px;
+  --fs:16px;       /* текст ответов — кнопка «Размер текста» */
   --gutter:clamp(10px,4vw,20px);
-  --fs:15.5px;     /* размер текста ответов — кнопка «Размер текста» */
   --top-h:150px;   /* высота шапки — задается из app.js */
   color-scheme:dark;
 }
@@ -30,7 +41,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
       color-mix(in oklab,var(--glow) calc(var(--bg-s) * .3),transparent) 55%,
       color-mix(in oklab,var(--glow) calc(var(--bg-s) * .1),transparent) 78%,transparent 100%),
     linear-gradient(180deg,color-mix(in oklab,var(--glow) calc(var(--bg-s) * .22),transparent) 0%,transparent calc(var(--bg-rn) * .5%))}
-body{margin:0;overflow-x:clip;min-height:100dvh;background:var(--bg);color:var(--text);font:14.5px/1.45 var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body{margin:0;overflow-x:clip;min-height:100dvh;background:var(--bg);color:var(--text);font:var(--fz-4)/1.45 var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer}
 h1,h2,h3,p{margin:0}
@@ -48,7 +59,7 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .btn:hover{background:var(--surface-3)}
 .btn:active:not(:disabled){transform:scale(.97)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.btn.sm{min-height:32px;padding:0 10px;font-size:13px;border-radius:7px}
+.btn.sm{min-height:32px;padding:0 10px;font-size:var(--fz-3);border-radius:var(--r-sm)}
 .icon-btn{display:inline-grid;place-items:center;width:38px;height:38px;flex:none;border:0;border-radius:var(--r-sm);background:transparent;color:var(--muted);transition:background-color var(--t-fast),color var(--t-fast),transform var(--t-fast) var(--ease)}
 .icon-btn:hover,.icon-btn[aria-expanded="true"]{background:var(--surface-3);color:var(--text)}
 .icon-btn:active{transform:scale(.94)}
@@ -67,17 +78,17 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .home[aria-current="page"]{color:var(--accent)}
 
 /* переключатель файлов — как «Активные / Готовые» */
-.seg{display:inline-flex;flex:0 1 auto;min-width:0;padding:3px;border-radius:999px;background:var(--surface-2);border:1px solid var(--border)}
-.seg-b{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:999px;color:var(--muted);font-size:13px;font-weight:600;white-space:nowrap;transition:background-color var(--t) var(--ease),color var(--t)}
+.seg{display:inline-flex;flex:0 1 auto;min-width:0;padding:3px;border-radius:var(--r-pill);background:var(--surface-2);border:1px solid var(--border)}
+.seg-b{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);color:var(--muted);font-size:var(--fz-3);font-weight:600;white-space:nowrap;transition:background-color var(--t) var(--ease),color var(--t)}
 .seg-b:hover{color:var(--text)}
-.seg-b[aria-current="page"]{background:var(--surface-4);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.seg-b[aria-current="page"]{background:var(--surface-4);color:var(--text);box-shadow:var(--shadow-1)}
 .seg-b .dot{width:7px;height:7px;border-radius:50%;background:var(--file);flex:none}
 
 /* размер текста */
 .menu{position:relative}
-.menu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:40;padding:10px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--r);box-shadow:var(--shadow-pop);transform-origin:top right;animation:pop 150ms var(--ease)}
+.menu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:40;padding:10px;background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--r);box-shadow:var(--shadow-2);transform-origin:top right;animation:pop 150ms var(--ease)}
 .size-list{display:grid;gap:8px;width:max-content}
-.size-label{font-size:11.5px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.size-label{font-size:var(--fz-1);font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .size-row{display:flex;align-items:center;gap:8px}
 .size-row .btn{min-width:44px;min-height:38px;font-weight:650}
 .size-val{min-width:44px;text-align:center;font-variant-numeric:tabular-nums;color:var(--text-2)}
@@ -88,6 +99,7 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .c-box:hover{border-color:var(--border-hover)}
 .c-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .s-ic{position:absolute;left:14px;color:var(--faint);pointer-events:none}
+/* 16px — ниже этого размера мобильный Safari увеличивает страницу при фокусе */
 .c-title{width:100%;min-width:0;height:46px;padding:0 44px 0 40px;border:0;background:transparent;font-size:16px;font-weight:550;-webkit-appearance:none;appearance:none}
 .c-title:focus{outline:none}
 .c-title::placeholder{color:var(--faint);font-weight:500}
@@ -96,28 +108,28 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 
 /* результаты — выпадающая панель как список папок */
 .fpanel{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:40;max-height:min(520px,calc(100dvh - var(--top-h) - 16px));overflow:auto;overscroll-behavior:contain;padding:5px;
-  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--r-lg);box-shadow:var(--shadow-pop);transform-origin:top center;animation:pop 150ms var(--ease)}
-.r-sum{margin:6px 9px 2px;color:var(--faint);font-size:12px}
-.r-empty{display:grid;gap:4px;padding:14px 10px 12px;color:var(--muted);font-size:13.5px}
-.opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;align-items:start;padding:9px 10px;border-radius:9px;cursor:pointer;transition:background-color 80ms}
+  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--r);box-shadow:var(--shadow-2);transform-origin:top center;animation:pop 150ms var(--ease)}
+.r-sum{margin:6px 9px 2px;color:var(--faint);font-size:var(--fz-2)}
+.r-empty{display:grid;gap:4px;padding:14px 10px 12px;color:var(--muted);font-size:var(--fz-3)}
+.opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;align-items:start;padding:9px 10px;border-radius:var(--r-sm);cursor:pointer;transition:background-color 80ms}
 .opt:hover{background:var(--surface-4)}
 .opt.is-active{background:var(--surface-4);box-shadow:inset 2px 0 0 var(--accent)}
 .opt .tag{margin-top:1px}
 .opt-q{grid-column:2;font-weight:500;line-height:1.4;overflow-wrap:anywhere}
-.opt-meta{grid-column:2;color:var(--faint);font-size:12px}
-.opt-snip{grid-column:2;color:var(--muted);font-size:12.5px;line-height:1.45}
+.opt-meta{grid-column:2;color:var(--faint);font-size:var(--fz-2)}
+.opt-snip{grid-column:2;color:var(--muted);font-size:var(--fz-2);line-height:1.45}
 mark{background:var(--accent-soft);color:var(--text);border-radius:3px;box-shadow:0 0 0 1px var(--accent-line)}
 
 .scrim{position:fixed;inset:0;z-index:15}
 
 /* метка файла */
-.tag{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--file) 14%,transparent);color:var(--file);font-size:11px;font-weight:650;white-space:nowrap}
+.tag{display:inline-flex;align-items:center;justify-content:center;min-width:34px;padding:1px 8px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--file) 14%,transparent);color:var(--file);font-size:var(--fz-1);font-weight:650;white-space:nowrap}
 [data-file="ik"]{--file:var(--c-ik)}
 [data-file="pk"]{--file:var(--c-pk)}
 [data-file="psy"]{--file:var(--c-psy)}
 
 /* разделитель — как «Готовые» в списке задач */
-.sep{display:flex;align-items:center;gap:10px;margin:18px 10px 4px;color:var(--faint);font-size:11.5px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;scroll-margin-top:calc(var(--top-h) + 8px)}
+.sep{display:flex;align-items:center;gap:10px;margin:18px 10px 4px;color:var(--faint);font-size:var(--fz-1);font-weight:650;letter-spacing:.06em;text-transform:uppercase;scroll-margin-top:calc(var(--top-h) + 8px)}
 .sep::after{content:"";flex:1;height:1px;background:var(--border)}
 .fpanel .sep{margin:12px 9px 4px}
 
@@ -128,40 +140,40 @@ main{padding-top:2px;outline:none;animation:fade var(--t)}
 .file-row:hover{background:var(--surface-2);border-color:var(--border)}
 .file-row .bar-c{width:3px;align-self:stretch;border-radius:3px;background:var(--file);flex:none}
 .file-txt{flex:1;min-width:0;display:grid;gap:2px}
-.file-txt b{font-size:15.5px;font-weight:650}
-.file-txt span{color:var(--muted);font-size:13px}
-.file-row .cnt{color:var(--faint);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.file-txt b{font-size:var(--fz-4);font-weight:650}
+.file-txt span{color:var(--muted);font-size:var(--fz-3)}
+.file-row .cnt{color:var(--faint);font-size:var(--fz-2);font-variant-numeric:tabular-nums;white-space:nowrap}
 .file-row .go{transform:rotate(-90deg);color:var(--faint)}
 .tips{display:grid;gap:8px;margin-top:22px;padding:14px;border:1px solid var(--border);border-radius:var(--r);background:color-mix(in srgb,var(--surface) 70%,transparent)}
-.sub-h{font-size:11.5px;font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.tips ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;color:var(--muted);font-size:13.5px}
-.tips kbd{display:inline-block;min-width:24px;padding:1px 7px;margin-right:4px;border-radius:6px;background:var(--surface-3);border:1px solid var(--border-strong);color:var(--text);font:600 12.5px/1.5 var(--font);text-align:center}
+.sub-h{font-size:var(--fz-1);font-weight:650;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.tips ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;color:var(--muted);font-size:var(--fz-3)}
+.tips kbd{display:inline-block;min-width:24px;padding:1px 7px;margin-right:4px;border-radius:var(--r-sm);background:var(--surface-3);border:1px solid var(--border-strong);color:var(--text);font:600 var(--fz-2)/1.5 var(--font);text-align:center}
 
 /* ---------- файл ---------- */
 .f-head{display:grid;gap:3px;margin:2px 0 10px}
-.f-head h1{font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.3}
-.f-head p{color:var(--faint);font-size:12.5px}
+.f-head h1{font-size:var(--fz-5);font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.f-head p{color:var(--faint);font-size:var(--fz-2)}
 .tools{display:flex;align-items:center;gap:8px;margin-bottom:6px;position:relative}
-.fbtn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px 0 10px;border:1px solid var(--border-strong);border-radius:999px;background:var(--surface-2);color:var(--text);font-size:13px;font-weight:600;transition:background-color var(--t-fast),border-color var(--t-fast)}
+.fbtn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 12px 0 10px;border:1px solid var(--border-strong);border-radius:var(--r-pill);background:var(--surface-2);color:var(--text);font-size:var(--fz-3);font-weight:600;transition:background-color var(--t-fast),border-color var(--t-fast)}
 .fbtn:hover,.fbtn[aria-expanded="true"]{background:var(--surface-3);border-color:var(--border-hover)}
 .fbtn .i{width:15px;height:15px;color:var(--muted)}
 .fbtn .chev{width:14px;height:14px;color:var(--faint);transition:transform var(--t) var(--ease)}
 .fbtn[aria-expanded="true"] .chev{transform:rotate(180deg)}
 .num-panel{position:absolute;left:0;top:calc(100% + 6px);z-index:30;width:min(340px,calc(100vw - 2 * var(--gutter)));max-height:min(360px,55vh);overflow:auto;padding:8px;
-  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--r-lg);box-shadow:var(--shadow-pop);transform-origin:top left;animation:pop 150ms var(--ease)}
+  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:var(--r);box-shadow:var(--shadow-2);transform-origin:top left;animation:pop 150ms var(--ease)}
 .num-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:4px}
-.num-grid a{display:grid;place-items:center;height:40px;border-radius:var(--r-sm);color:var(--text-2);font-size:13.5px;font-variant-numeric:tabular-nums;transition:background-color 80ms}
+.num-grid a{display:grid;place-items:center;height:40px;border-radius:var(--r-sm);color:var(--text-2);font-size:var(--fz-3);font-variant-numeric:tabular-nums;transition:background-color 80ms}
 .num-grid a:hover{background:var(--surface-4)}
 
 /* вопрос — как задача: строка, по нажатию раскрывается ответ */
 .list{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0 -6px}
 .qa{border:1px solid transparent;border-radius:var(--r);scroll-margin-top:calc(var(--top-h) + 8px);transition:background-color var(--t),border-color var(--t)}
-.qa:hover{background:rgba(255,255,255,.02)}
+.qa:hover{background:color-mix(in srgb,var(--surface) 55%,transparent)}
 .qa.open{background:var(--surface);border-color:var(--border)}
 .qa.target{border-color:var(--accent-line);background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
 .qa.flash{animation:flash 1.6s var(--ease)}
 .q-head{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:46px;padding:12px 10px 12px 12px;border:0;border-radius:var(--r);background:none;text-align:left}
-.q-n{flex:none;min-width:22px;color:var(--faint);font-size:13px;font-weight:650;font-variant-numeric:tabular-nums;line-height:1.55;transition:color var(--t)}
+.q-n{flex:none;min-width:26px;color:var(--faint);font-size:var(--fz-3);font-weight:650;font-variant-numeric:tabular-nums;line-height:1.55;transition:color var(--t)}
 .qa.open .q-n,.qa.target .q-n{color:var(--accent)}
 .q-title{flex:1;min-width:0;font-weight:500;font-size:calc(var(--fs) - 1px);line-height:1.45;overflow-wrap:anywhere}
 .q-head .chev{width:16px;height:16px;margin-top:3px;color:var(--faint);transition:transform var(--t) var(--ease)}
@@ -182,9 +194,9 @@ main{padding-top:2px;outline:none;animation:fade var(--t)}
 .fold>summary:hover{color:var(--text)}
 .fold>summary .chev{width:14px;height:14px;transform:rotate(-90deg);transition:transform var(--t) var(--ease)}
 .fold[open]>summary .chev{transform:none}
-.fold ul{margin:8px 0 0;padding-left:22px;color:var(--faint);font-size:13px;display:grid;gap:3px}
+.fold ul{margin:8px 0 0;padding-left:22px;color:var(--faint);font-size:var(--fz-3);display:grid;gap:3px}
 
-.to-top{position:fixed;z-index:15;right:max(16px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:var(--surface-3);border:1px solid var(--border-strong);color:var(--text);box-shadow:var(--shadow-pop);animation:rise var(--t) var(--ease)}
+.to-top{position:fixed;z-index:15;right:max(16px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:var(--surface-3);border:1px solid var(--border-strong);color:var(--text);box-shadow:var(--shadow-2);animation:rise var(--t) var(--ease)}
 .to-top:hover{background:var(--surface-4)}
 
 @media (pointer:coarse){.fbtn{height:38px}.seg-b{height:34px}.opt{padding:11px 10px}}
