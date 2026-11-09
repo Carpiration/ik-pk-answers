@@ -69,7 +69,23 @@
   const storage = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* приватный режим */ } },
+    json(k, fallback) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? fallback; } catch { return fallback; } },
   };
+
+  /* ---------- Что уже выучено и что искали ---------- */
+  // Хранится только в этом браузере: на другом устройстве отметок не будет.
+  const learned = new Set(Array.isArray(storage.json('learned', [])) ? storage.json('learned', []) : []);
+  const learnKey = (it) => `${it.file}:${it.key}`;
+  const saveLearned = () => storage.set('learned', JSON.stringify([...learned]));
+
+  const RECENT_MAX = 5;
+  let recent = (storage.json('recent', []) || []).filter((s) => typeof s === 'string').slice(0, RECENT_MAX);
+  function rememberQuery(raw) {
+    const s = raw.trim();
+    if (s.length < 2) return;
+    recent = [s, ...recent.filter((x) => x.toLowerCase() !== s.toLowerCase())].slice(0, RECENT_MAX);
+    storage.set('recent', JSON.stringify(recent));
+  }
 
   /* ---------- Подсветка совпадений ---------- */
   const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -320,7 +336,13 @@
     active = -1;
     list.replaceChildren();
     input.removeAttribute('aria-activedescendant');
-    if (!q) { closeResults(); lastTokens = null; return; }
+    if (!q) {
+      lastTokens = null;
+      // Пустое поле: пока оно в фокусе, показываем прошлые запросы вместо пустой панели.
+      if (!raw && recent.length && document.activeElement === input) { renderRecent(); return; }
+      closeResults();
+      return;
+    }
 
     if (q.type === 'text') {
       lastTokens = q.tokens;
@@ -369,6 +391,26 @@
     openResults();
   }
 
+  function renderRecent() {
+    summary.textContent = '';
+    const clear = h('button', { class: 'r-clear', type: 'button', text: 'Очистить' });
+    clear.addEventListener('click', () => {
+      recent = [];
+      storage.set('recent', '[]');
+      closeResults();
+      input.focus();
+    });
+    list.append(
+      h('p', { class: 'sep sep-row' }, 'Недавние запросы', clear),
+      ...recent.map((s) => {
+        const b = h('button', { class: 'opt opt-recent', type: 'button' }, h('span', { class: 'opt-q', text: s }));
+        b.addEventListener('click', () => { input.value = s; input.focus(); renderResults(); });
+        return b;
+      })
+    );
+    openResults();
+  }
+
   function openResults() {
     closePops();
     panel.hidden = false;
@@ -399,6 +441,7 @@
     const it = options[idx];
     if (!it) return;
     pendingTokens = lastTokens;
+    rememberQuery(input.value);
     closeResults();
     if (matchMedia('(pointer: coarse)').matches) input.blur(); // убрать клавиатуру на телефоне
     const hash = `#/${it.file}/${it.key}`;
@@ -407,7 +450,7 @@
   }
 
   input.addEventListener('input', renderResults);
-  input.addEventListener('focus', () => { if (input.value.trim()) renderResults(); });
+  input.addEventListener('focus', () => { if (input.value.trim() || recent.length) renderResults(); });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowDown') { e.preventDefault(); if (panel.hidden) renderResults(); else setActive(active + 1); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); }
@@ -513,21 +556,41 @@
     window.scrollTo(0, 0);
   }
 
+  let syncLearnedCount = null; // задается в renderFile, обновляет подпись «выучено N из M»
+
   function setOpen(el, open) {
     el.classList.toggle('open', open);
     el.querySelector('.q-head').setAttribute('aria-expanded', String(open));
   }
 
   function qaBlock(it) {
+    const key = learnKey(it);
     const head = h('button', { class: 'q-head', type: 'button', 'aria-expanded': String(expandAll), 'aria-controls': `${it.domId}-a` },
       h('span', { class: 'q-n', text: it.n }),
       h('span', { class: 'q-title' }, it.q),
+      h('span', { class: 'q-done', title: 'Выучено' }, icon('i-check')),
       icon('i-chev', 'chev'));
+
+    const mark = h('button', { class: 'mark', type: 'button' });
+    const syncMark = () => {
+      const done = learned.has(key);
+      mark.replaceChildren(icon('i-check'), done ? 'Выучено' : 'Отметить выученным');
+      mark.setAttribute('aria-pressed', String(done));
+      el.classList.toggle('done', done);
+    };
+    mark.addEventListener('click', () => {
+      if (learned.has(key)) learned.delete(key); else learned.add(key);
+      saveLearned();
+      syncMark();
+      syncLearnedCount?.();
+    });
+
     const el = h('article', { class: 'qa' + (expandAll ? ' open' : ''), id: it.domId, 'data-file': it.file },
       head,
       h('div', { class: 'q-more', id: `${it.domId}-a` },
         h('div', { class: 'q-more-in' },
-          h('div', { class: 'q-pad' }, it.a.map((p) => h('p', { class: 'q-a' }, p))))));
+          h('div', { class: 'q-pad' }, ...it.a.map((p) => h('p', { class: 'q-a' }, p)), mark))));
+    syncMark();
     head.addEventListener('click', () => setOpen(el, !el.classList.contains('open')));
     return el;
   }
@@ -540,6 +603,7 @@
   function renderFile(f) {
     currentFile = f.id;
     currentTarget = null;
+    syncLearnedCount = null;
     document.title = `${f.name} — ${BASE_TITLE}`;
 
     const tocLinks = f.tickets
@@ -575,8 +639,16 @@
       body.push(qaBlock(it));
     }
 
+    const learnedNote = h('span', { class: 'learned-note' });
+    syncLearnedCount = () => {
+      const n = f.items.reduce((acc, it) => acc + (learned.has(learnKey(it)) ? 1 : 0), 0);
+      learnedNote.textContent = n ? ` · выучено ${n} из ${f.items.length}` : '';
+    };
+    syncLearnedCount();
+
     main.replaceChildren(
-      h('div', { class: 'f-head' }, h('h1', null, f.title), h('p', null, `${f.subtitle} · нажмите на вопрос, чтобы открыть ответ`)),
+      h('div', { class: 'f-head' }, h('h1', null, f.title),
+        h('p', null, `${f.subtitle} · нажмите на вопрос, чтобы открыть ответ`, learnedNote)),
       tools,
       h('div', { class: 'list' }, body),
       f.sources.length ? h('details', { class: 'fold' },
