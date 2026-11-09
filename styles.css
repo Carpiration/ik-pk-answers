@@ -199,7 +199,16 @@ main{padding-top:2px;outline:none;animation:fade var(--t)}
 .to-top{position:fixed;z-index:15;right:max(16px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;background:var(--surface-3);border:1px solid var(--border-strong);color:var(--text);box-shadow:var(--shadow-2);animation:rise var(--t) var(--ease)}
 .to-top:hover{background:var(--surface-4)}
 
-@media (pointer:coarse){.fbtn{height:38px}.seg-b{height:34px}.opt{padding:11px 10px}}
+/* на пальце цели крупнее: ориентир 44 px */
+@media (pointer:coarse){
+  .fbtn{height:40px}
+  .seg-b{height:38px}
+  .opt{padding:11px 10px}
+  .icon-btn{width:44px;height:44px}
+  .btn.sm{min-height:38px}
+  .num-grid a{height:44px}
+  .fold>summary{min-height:44px}
+}
 @media (max-width:380px){.seg-b{padding:0 10px}.seg-b .dot{display:none}.q-pad{padding-left:14px}}
 
 @keyframes pop{from{opacity:0;transform:scale(.96) translateY(-4px)}}
