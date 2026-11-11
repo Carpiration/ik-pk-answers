@@ -13,8 +13,8 @@
   --accent-soft:color-mix(in srgb,var(--accent) 13%,transparent); --accent-line:color-mix(in srgb,var(--accent) 45%,transparent);
   /* свечение фона из угла — общий признак с «Задачами» */
   --bg-x:92%; --bg-y:0%; --bg-s:20%; --bg-rn:80;
-  /* метки файлов: oklch(.775 .105 95 / 180 / 265 / 350) */
-  --c-ik:#cbb564; --c-pk:#5eccb8; --c-psy:#95b5fa; --c-nerv:#e99abf;
+  /* метки файлов: oklch(.775 .105 95 / 180 / 265 / 350 / 305) */
+  --c-ik:#cbb564; --c-pk:#5eccb8; --c-psy:#95b5fa; --c-nerv:#e99abf; --c-sp:#c5a5ec;
   /* состояние «выучено»: oklch(.775 .105 145), та же светлота, что у меток */
   --c-ok:#6ccc90;
   /* форма */
@@ -80,8 +80,9 @@ svg.i{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-widt
 .home[aria-current="page"]{color:var(--accent)}
 
 /* переключатель файлов — как «Активные / Готовые» */
-.seg{display:inline-flex;flex:0 1 auto;min-width:0;padding:3px;border-radius:var(--r-pill);background:var(--surface-2);border:1px solid var(--border)}
-.seg-b{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);color:var(--muted);font-size:var(--fz-3);font-weight:600;white-space:nowrap;transition:background-color var(--t) var(--ease),color var(--t)}
+.seg{display:inline-flex;flex:0 1 auto;min-width:0;padding:3px;border-radius:var(--r-pill);background:var(--surface-2);border:1px solid var(--border);overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+.seg::-webkit-scrollbar{display:none}
+.seg-b{display:inline-flex;flex:none;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--r-pill);color:var(--muted);font-size:var(--fz-3);font-weight:600;white-space:nowrap;transition:background-color var(--t) var(--ease),color var(--t)}
 .seg-b:hover{color:var(--text)}
 .seg-b[aria-current="page"]{background:var(--surface-4);color:var(--text);box-shadow:var(--shadow-1)}
 .seg-b .dot{width:7px;height:7px;border-radius:50%;background:var(--file);flex:none}
@@ -137,6 +138,7 @@ mark{background:var(--accent-soft);color:var(--text);border-radius:3px;box-shado
 [data-file="pk"]{--file:var(--c-pk)}
 [data-file="psy"]{--file:var(--c-psy)}
 [data-file="nerv"]{--file:var(--c-nerv)}
+[data-file="sp"]{--file:var(--c-sp)}
 
 /* разделитель — как «Готовые» в списке задач */
 .sep{display:flex;align-items:center;gap:10px;margin:18px 10px 4px;color:var(--faint);font-size:var(--fz-1);font-weight:650;letter-spacing:.06em;text-transform:uppercase;scroll-margin-top:calc(var(--top-h) + 8px)}
@@ -230,7 +232,7 @@ main{padding-top:2px;outline:none;animation:fade var(--t)}
   .num-grid a{height:44px}
   .fold>summary{min-height:44px}
 }
-@media (max-width:380px){.seg-b{padding:0 10px}.seg-b .dot{display:none}.q-pad{padding-left:14px}}
+@media (max-width:420px){.seg-b{padding:0 6px;font-size:var(--fz-1)}.seg-b .dot{display:none}.q-pad{padding-left:14px}}
 
 @keyframes pop{from{opacity:0;transform:scale(.96) translateY(-4px)}}
 @keyframes fade{from{opacity:0}}

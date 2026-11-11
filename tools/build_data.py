@@ -23,8 +23,9 @@ ROOT = Path(__file__).resolve().parent.parent
 FILES = [
     {"id": "ik", "short": "ИК", "name": "ИК вопросы", "src": "source/ik.docx"},
     {"id": "pk", "short": "ПК", "name": "ПК вопросы", "src": "source/pk.docx"},
-    {"id": "psy", "short": "Психология", "name": "ПК Психология", "src": "source/psy.docx"},
+    {"id": "psy", "short": "Псих.", "name": "ПК Психология", "src": "source/psy.docx"},
     {"id": "nerv", "short": "НС", "name": "Нервная система", "src": "source/nerv.docx"},
+    {"id": "sp", "short": "СП", "name": "Введение в специальность", "src": "source/specped.docx"},
 ]
 
 
